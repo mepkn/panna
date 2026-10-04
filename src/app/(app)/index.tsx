@@ -2,12 +2,13 @@ import * as Clipboard from "expo-clipboard";
 import { router, Stack } from "expo-router";
 import { Check, Copy, Settings, Trash2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { KeyboardAvoidingView, Platform, View } from "react-native";
+import { Platform, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MAX_TEXT_BYTES } from "@convex/lib/limits";
 import { CmpButton } from "@/components/cmp/cmp-button";
 import { CmpConfirmDialog } from "@/components/cmp/cmp-confirm-dialog";
 import { CmpEditor } from "@/components/cmp/cmp-editor";
+import { CmpKeyboardPadding } from "@/components/cmp/cmp-keyboard-padding";
 import { CmpText } from "@/components/cmp/cmp-text";
 import { strings } from "@/lib/strings";
 import { useScratch, type SyncStatus } from "@/lib/use-scratch";
@@ -76,9 +77,8 @@ export default function PadScreen() {
           ),
         }}
       />
-      <KeyboardAvoidingView
-        className="flex-1"
-        behavior={Platform.OS === "ios" ? "padding" : undefined}>
+      {/* The editor and status line sit above the keyboard. */}
+      <CmpKeyboardPadding>
         <CmpEditor
           value={pad.text}
           onChangeText={pad.change}
@@ -105,7 +105,7 @@ export default function PadScreen() {
             </CmpText>
           )}
         </View>
-      </KeyboardAvoidingView>
+      </CmpKeyboardPadding>
       <CmpConfirmDialog
         open={confirmClear}
         onOpenChange={setConfirmClear}
