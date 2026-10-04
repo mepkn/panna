@@ -17,8 +17,7 @@ Platforms: web (static export on the VPS) and Android (sideloaded APK).
 ## Stack
 
 Expo (SDK 57) · Expo Router · TypeScript · NativeWind + React Native Reusables ·
-Convex (database, auth) · Convex Auth (password) ·
-`react-native-keyboard-controller` (keyboard handling).
+Convex (database, auth) · Convex Auth (password).
 
 ## Development
 
@@ -132,7 +131,6 @@ adb install -r dist/scratch-preview-*.apk
 ## How it works
 
 - **The app** (`src/`) uses Expo Router, NativeWind and React Native Reusables. The RNR primitives live in `src/components/ui/`, and screens only use the app's own wrappers in `src/components/cmp/cmp-*.tsx`. All strings are in `src/lib/strings.ts`.
-- **Keyboard** (`react-native-keyboard-controller`, `KeyboardProvider` in the root layout). The pad pads its bottom by the keyboard height (`CmpKeyboardPadding`), so the editor and status line sit above it. The auth form scrolls the focused field above the keyboard (`CmpKeyboardAwareScrollView`). On web nothing moves.
 - **Convex** (`convex/`) is the entire backend.
   - `schema.ts`: `scratches` (one row per user, `by_user` index), plus the Convex Auth tables.
   - `auth.ts`: Convex Auth with the Password provider. `profile()` runs for sign-up and sign-in before anything is stored and refuses emails not in `ALLOWED_EMAILS` with a generic `notAllowed`. `lib/access.ts` `requireUserId` re-checks the list on every call, so removing an email also ends that user's sessions.
