@@ -87,6 +87,12 @@ scratches: defineTable({
 - NativeWind (Tailwind v3) + React Native Reusables.
   - RNR primitives live in `src/components/ui/`.
   - Screens only use app-owned wrappers in `src/components/cmp/cmp-*.tsx`.
+- Keyboard: `react-native-keyboard-controller`, with `KeyboardProvider` at the root.
+  - Form screens use `CmpKeyboardAwareScrollView`, which scrolls the focused field above the keyboard.
+  - A full-height editor with a bottom bar uses `CmpKeyboardPadding`.
+  - Dialogs rise by half the keyboard height (in `components/ui/dialog.tsx`).
+  - Lists with a search box at the top, and screens without inputs, need nothing.
+  - No fixed offsets such as `mb-[40vh]`, no RN `KeyboardAvoidingView`, no bottom sheets.
 - `@/` → `src/`, and `@convex/` → `convex/`.
 - Node 22.18+ (`.nvmrc` = 22).
 - Scripts (copy them from yaad-dila):
