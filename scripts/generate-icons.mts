@@ -1,4 +1,4 @@
-// Draws the Scratch notepad mark in the pastel-blue palette.
+// Draws the Panna notepad mark in the pastel-blue palette.
 import { Resvg } from "@resvg/resvg-js";
 import { writeFileSync } from "node:fs";
 

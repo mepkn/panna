@@ -1,6 +1,6 @@
-# Scratch — Build Spec
+# Panna — Build Spec
 
-A private scratchpad: one plain-text box that syncs live between my Android phone and the
+A private notepad: one plain-text box that syncs live between my Android phone and the
 web at `https://panna.pknspace.com`. Not public. Only allowlisted emails can sign in.
 
 Sister project of `../yaad-dila` (Expo + Convex). **Copy its structure, scripts and
@@ -70,14 +70,14 @@ scratches: defineTable({
 ## Screens (Expo Router)
 
 - `(auth)/sign-in`, `(auth)/sign-up`: same form component as yaad-dila.
-- `(app)/index`: the scratchpad. Full-height text input, status label, size counter.
+- `(app)/index`: the pad. Full-height text input, status label, size counter.
   Header buttons: **Copy all** and **Clear** (with a confirm dialog).
 - `(app)/settings`:
   - signed-in email
   - log out
   - theme: light / dark / system
 - English only. No i18n library needed, but keep strings in one `src/lib/strings.ts`.
-- Android: **share text into Scratch** (Android share target) appends the shared text to the end of the pad.
+- Android: **share text into Panna** (Android share target) appends the shared text to the end of the pad.
   It's optional, so build it last.
 
 ## Stack and conventions (match the other repos)

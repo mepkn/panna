@@ -1,6 +1,6 @@
 # Panna
 
-A private scratchpad: one plain-text box per account that syncs live between an Android
+A private notepad: one plain-text box per account that syncs live between an Android
 phone and the web at <https://panna.pknspace.com>. Only allowlisted emails can sign in.
 
 Platforms: web (static export on the VPS) and Android (sideloaded APK).
