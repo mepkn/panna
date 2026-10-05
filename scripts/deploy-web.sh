@@ -8,7 +8,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-URL="https://scratch.pknspace.com"
+URL="https://panna.pknspace.com"
 
 if [ ! -f .env.prod.local ]; then
   echo "Missing .env.prod.local. Copy .env.example and fill in the DEPLOY_* values." >&2

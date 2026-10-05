@@ -1,7 +1,7 @@
 # Scratch — Build Spec
 
 A private scratchpad: one plain-text box that syncs live between my Android phone and the
-web at `https://scratch.pknspace.com`. Not public. Only allowlisted emails can sign in.
+web at `https://panna.pknspace.com`. Not public. Only allowlisted emails can sign in.
 
 Sister project of `../yaad-dila` (Expo + Convex). **Copy its structure, scripts and
 conventions** wherever this spec doesn't say otherwise. Read its README, `convex/auth.ts`,
@@ -10,7 +10,7 @@ before starting.
 
 ## Product
 
-- **One URL, no sub-pages.** `scratch.pknspace.com` is the only page (plus sign-in).
+- **One URL, no sub-pages.** `panna.pknspace.com` is the only page (plus sign-in).
   No `/name` routes, no pad list, no pad names, no random-pad button.
 - **One document per user.** After signing in you see your own text and nothing else.
   The account decides which text you get, the same way gmail.com shows your own inbox.
@@ -112,7 +112,7 @@ scratches: defineTable({
 - Repo files: README (same layout as yaad-dila), `.env.example` (lists `ALLOWED_EMAILS`
   under Convex-side vars), AGENTS.md, CLAUDE.md, LICENSE, `.gitignore` covering
   `.env*.local` and `.eas-token`.
-- App id `com.pknspace.scratch`, scheme `scratch`.
+- App id `com.pknspace.panna`, scheme `panna`.
 
 ## Deployment
 
@@ -122,22 +122,22 @@ scratches: defineTable({
   - `npx expo export -p web` produces `dist/`.
   - `scripts/deploy-web.sh` (copy `../akinator/scripts/deploy.sh`) runs check, export, then
     `rsync -avz --delete dist/` over SSH to `DEPLOY_DIR`. The system Caddy on the VPS serves that
-    folder at `https://scratch.pknspace.com`; no container and no restart.
+    folder at `https://panna.pknspace.com`; no container and no restart.
   - `npm run deploy:web` and `deploy:web:dry` (`DRY_RUN=1`).
   - `DEPLOY_HOST`, `DEPLOY_PORT` and `DEPLOY_DIR` live in `.env.prod.local`, read with the shared
     literal loop. `.env.example` has placeholders only.
-  - One-time VPS setup (done by me; needs sudo). `DEPLOY_DIR=/var/www/scratch`, owned by the
+  - One-time VPS setup (done by me; needs sudo). `DEPLOY_DIR=/var/www/panna`, owned by the
     deploy user like the other sites. Block in `/etc/caddy/Caddyfile`:
     ```caddy
-    http://scratch.pknspace.com:8080 {
-          root * /var/www/scratch
+    http://panna.pknspace.com:8080 {
+          root * /var/www/panna
           try_files {path} {path}.html /index.html
           encode gzip
           file_server
     }
     ```
     The block differs from the Vite sites: it adds `{path}.html` because Expo's static export
-    writes routes as `sign-in.html` etc. Plus a cloudflared Public Hostname `scratch.pknspace.com`
+    writes routes as `sign-in.html` etc. Plus a cloudflared Public Hostname `panna.pknspace.com`
     → `http://localhost:8080`. Don't try to run sudo.
   - Never write the VPS host, IP or port into tracked files.
 - **Android:** EAS under my personal Expo account. Run `source .eas-token` (git-ignored), which

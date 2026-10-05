@@ -1,15 +1,15 @@
 {
   "expo": {
     "name": "Panna",
-    "slug": "scratch",
+    "slug": "panna",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "scratch",
+    "scheme": "panna",
     "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/images/icon.png",
-      "bundleIdentifier": "com.pknspace.scratch"
+      "bundleIdentifier": "com.pknspace.panna"
     },
     "android": {
       "adaptiveIcon": {
@@ -19,7 +19,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.pknspace.scratch",
+      "package": "com.pknspace.panna",
       "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
@@ -48,10 +48,7 @@
       "reactCompiler": true
     },
     "extra": {
-      "router": {},
-      "eas": {
-        "projectId": "d344832d-6b07-472f-887f-8fa41ae8ebb8"
-      }
+      "router": {}
     },
     "owner": "mepkn"
   }

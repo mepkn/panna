@@ -1,7 +1,7 @@
 # Panna
 
 A private scratchpad: one plain-text box per account that syncs live between an Android
-phone and the web at <https://scratch.pknspace.com>. Only allowlisted emails can sign in.
+phone and the web at <https://panna.pknspace.com>. Only allowlisted emails can sign in.
 
 Platforms: web (static export on the VPS) and Android (sideloaded APK).
 
@@ -83,7 +83,7 @@ npx expo start --dev-client      # Metro for the development build
 
 Three parts: the Convex production deployment `insightful-chickadee-479`
 (`https://insightful-chickadee-479.convex.cloud`, project `scratch`), the static web app on
-the VPS, and the Android app built with EAS (`@mepkn/scratch`).
+the VPS, and the Android app built with EAS (`@mepkn/panna`).
 
 ### One-time setup (done, except the VPS)
 
@@ -92,13 +92,13 @@ the VPS, and the Android app built with EAS (`@mepkn/scratch`).
   line by line as literal `KEY=VALUE`; it is never sourced.
 - `.eas-token` (git-ignored) holds `export EXPO_TOKEN=...` for the personal Expo account. The scripts read it, so the global `eas` login is never used or changed.
 - On the production Convex deployment: `JWT_PRIVATE_KEY`, `JWKS` (`npx @convex-dev/auth --prod`),
-  `SITE_URL=https://scratch.pknspace.com` and `ALLOWED_EMAILS`.
+  `SITE_URL=https://panna.pknspace.com` and `ALLOWED_EMAILS`.
 - The EAS environments `preview` and `production` have `EXPO_PUBLIC_CONVEX_URL` set to the production URL.
-- VPS: `DEPLOY_DIR=/var/www/scratch`, owned by the deploy user. System Caddy block:
+- VPS: `DEPLOY_DIR=/var/www/panna`, owned by the deploy user. System Caddy block:
 
   ```caddy
-  http://scratch.pknspace.com:8080 {
-        root * /var/www/scratch
+  http://panna.pknspace.com:8080 {
+        root * /var/www/panna
         try_files {path} {path}.html /index.html
         encode gzip
         file_server
@@ -106,7 +106,7 @@ the VPS, and the Android app built with EAS (`@mepkn/scratch`).
   ```
 
   `{path}.html` is needed because Expo's static export writes routes as `sign-in.html` etc.
-  A cloudflared Public Hostname maps `scratch.pknspace.com` → `http://localhost:8080`.
+  A cloudflared Public Hostname maps `panna.pknspace.com` → `http://localhost:8080`.
 
 ### Backend
 
@@ -125,7 +125,7 @@ npm run deploy:web        # checks, export, rsync --delete; Caddy serves it imme
 
 ```sh
 npm run build:android:preview:local
-adb install -r dist/scratch-preview-*.apk
+adb install -r dist/panna-preview-*.apk
 ```
 
 ## How it works
