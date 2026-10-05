@@ -1,4 +1,4 @@
-# Scratch
+# Panna
 
 A private scratchpad: one plain-text box per account that syncs live between an Android
 phone and the web at <https://scratch.pknspace.com>. Only allowlisted emails can sign in.
