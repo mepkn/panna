@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploys convex/ to the production Convex deployment insightful-chickadee-479 (project "scratch").
+# Deploys convex/ to the production Convex deployment insightful-chickadee-479 (project "panna").
 # Needs CONVEX_DEPLOY_KEY in .env.prod.local (git-ignored).
 set -euo pipefail
 cd "$(dirname "$0")/.."

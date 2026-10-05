@@ -48,7 +48,7 @@ before starting.
 ## Data model
 
 ```ts
-scratches: defineTable({
+pads: defineTable({
   userId: v.id("users"),
   text: v.string(),
   version: v.number(),     // increments on each save
@@ -60,8 +60,8 @@ scratches: defineTable({
 
 ## Convex API
 
-- `scratch.get()` query → `{ text, version, updatedAt } | null` for the signed-in user.
-- `scratch.save({ text, baseVersion })` mutation: validates size, upserts the user's row, bumps `version`, returns the new version.
+- `pad.get()` query → `{ text, version, updatedAt } | null` for the signed-in user.
+- `pad.save({ text, baseVersion })` mutation: validates size, upserts the user's row, bumps `version`, returns the new version.
 - `users.me()` query → `{ email }`, used in Settings.
 - Error codes are plain-string `ConvexError`s (`notAuthenticated`, `notAllowed`,
   `textTooLong`), translated in the client like yaad-dila's `src/lib/errors.ts`.
@@ -105,7 +105,7 @@ scratches: defineTable({
 - **Tests (convex-test):**
   - non-allowlisted sign-in rejected
   - removed email loses access
-  - user A can't read or overwrite user B's scratch
+  - user A can't read or overwrite user B's pad
   - size cap enforced
   - version bumps
   - Stub `ALLOWED_EMAILS` with `vi.stubEnv` in the test helper.
@@ -116,7 +116,7 @@ scratches: defineTable({
 
 ## Deployment
 
-- **Backend:** a new Convex project `scratch`.
+- **Backend:** a new Convex project `panna`.
   - Set `JWT_PRIVATE_KEY` and `JWKS` (`npx @convex-dev/auth`), `SITE_URL`, and `ALLOWED_EMAILS` on prod.
 - **Web:** deploy the same way as `../akinator`, `../eliza`, `../class` and `../electricity-bill-calculator`:
   - `npx expo export -p web` produces `dist/`.

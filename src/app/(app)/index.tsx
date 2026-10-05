@@ -11,7 +11,7 @@ import { CmpEditor } from "@/components/cmp/cmp-editor";
 import { CmpKeyboardPadding } from "@/components/cmp/cmp-keyboard-padding";
 import { CmpText } from "@/components/cmp/cmp-text";
 import { strings } from "@/lib/strings";
-import { useScratch, type SyncStatus } from "@/lib/use-scratch";
+import { usePad, type SyncStatus } from "@/lib/use-pad";
 import { cn } from "@/lib/utils";
 
 const s = strings.pad;
@@ -29,7 +29,7 @@ const STATUS_LABEL: Record<SyncStatus, string> = {
 const kb = (bytes: number) => (bytes / 1024).toFixed(1);
 
 export default function PadScreen() {
-  const pad = useScratch();
+  const pad = usePad();
   const [confirmClear, setConfirmClear] = useState(false);
   const [copied, setCopied] = useState(false);
 

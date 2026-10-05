@@ -37,15 +37,15 @@ describe("allowlist", () => {
     const t = newTest();
     const alice = await signedInUser(t, "alice@example.com");
     vi.stubEnv("ALLOWED_EMAILS", "");
-    await expect(alice.as.query(api.scratch.get, {})).rejects.toThrow("notAllowed");
+    await expect(alice.as.query(api.pad.get, {})).rejects.toThrow("notAllowed");
   });
 
   test("a signed-in user whose email isn't allowed is refused", async () => {
     const t = newTest();
     const mallory = await signedInUser(t, "mallory@example.com");
-    await expect(mallory.as.query(api.scratch.get, {})).rejects.toThrow("notAllowed");
+    await expect(mallory.as.query(api.pad.get, {})).rejects.toThrow("notAllowed");
     await expect(
-      mallory.as.mutation(api.scratch.save, { text: "x", baseVersion: 0 }),
+      mallory.as.mutation(api.pad.save, { text: "x", baseVersion: 0 }),
     ).rejects.toThrow("notAllowed");
     await expect(mallory.as.query(api.users.me, {})).rejects.toThrow("notAllowed");
   });
@@ -53,44 +53,44 @@ describe("allowlist", () => {
   test("removing an email cuts off an existing session", async () => {
     const t = newTest();
     const alice = await signedInUser(t, "alice@example.com");
-    expect(await alice.as.query(api.scratch.get, {})).toBeNull();
+    expect(await alice.as.query(api.pad.get, {})).toBeNull();
     vi.stubEnv("ALLOWED_EMAILS", "bob@example.com");
-    await expect(alice.as.query(api.scratch.get, {})).rejects.toThrow("notAllowed");
+    await expect(alice.as.query(api.pad.get, {})).rejects.toThrow("notAllowed");
     await expect(
-      alice.as.mutation(api.scratch.save, { text: "x", baseVersion: 0 }),
+      alice.as.mutation(api.pad.save, { text: "x", baseVersion: 0 }),
     ).rejects.toThrow("notAllowed");
   });
 
   test("anonymous callers are refused", async () => {
     const t = newTest();
-    await expect(t.query(api.scratch.get, {})).rejects.toThrow("notAuthenticated");
+    await expect(t.query(api.pad.get, {})).rejects.toThrow("notAuthenticated");
   });
 });
 
-describe("scratch", () => {
+describe("pad", () => {
   test("each user only sees and overwrites their own text", async () => {
     const t = newTest();
     const alice = await signedInUser(t, "alice@example.com");
     const bob = await signedInUser(t, "bob@example.com");
-    await alice.as.mutation(api.scratch.save, { text: "alice's secret", baseVersion: 0 });
-    expect(await bob.as.query(api.scratch.get, {})).toBeNull();
-    await bob.as.mutation(api.scratch.save, { text: "bob's", baseVersion: 0 });
-    expect((await alice.as.query(api.scratch.get, {}))?.text).toBe("alice's secret");
-    expect((await bob.as.query(api.scratch.get, {}))?.text).toBe("bob's");
-    const rows = await t.run((ctx) => ctx.db.query("scratches").collect());
+    await alice.as.mutation(api.pad.save, { text: "alice's secret", baseVersion: 0 });
+    expect(await bob.as.query(api.pad.get, {})).toBeNull();
+    await bob.as.mutation(api.pad.save, { text: "bob's", baseVersion: 0 });
+    expect((await alice.as.query(api.pad.get, {}))?.text).toBe("alice's secret");
+    expect((await bob.as.query(api.pad.get, {}))?.text).toBe("bob's");
+    const rows = await t.run((ctx) => ctx.db.query("pads").collect());
     expect(rows).toHaveLength(2);
   });
 
   test("version bumps on each save, and a stale save still wins", async () => {
     const t = newTest();
     const alice = await signedInUser(t, "alice@example.com");
-    expect(await alice.as.mutation(api.scratch.save, { text: "a", baseVersion: 0 })).toBe(1);
-    expect(await alice.as.mutation(api.scratch.save, { text: "b", baseVersion: 1 })).toBe(2);
+    expect(await alice.as.mutation(api.pad.save, { text: "a", baseVersion: 0 })).toBe(1);
+    expect(await alice.as.mutation(api.pad.save, { text: "b", baseVersion: 1 })).toBe(2);
     // Based on version 1 while the server is at 2: last write wins.
-    expect(await alice.as.mutation(api.scratch.save, { text: "c", baseVersion: 1 })).toBe(3);
-    const got = await alice.as.query(api.scratch.get, {});
+    expect(await alice.as.mutation(api.pad.save, { text: "c", baseVersion: 1 })).toBe(3);
+    const got = await alice.as.query(api.pad.get, {});
     expect(got).toMatchObject({ text: "c", version: 3 });
-    const rows = await t.run((ctx) => ctx.db.query("scratches").collect());
+    const rows = await t.run((ctx) => ctx.db.query("pads").collect());
     expect(rows).toHaveLength(1);
   });
 
@@ -98,15 +98,15 @@ describe("scratch", () => {
     const t = newTest();
     const alice = await signedInUser(t, "alice@example.com");
     await expect(
-      alice.as.mutation(api.scratch.save, { text: "a".repeat(MAX_TEXT_BYTES), baseVersion: 0 }),
+      alice.as.mutation(api.pad.save, { text: "a".repeat(MAX_TEXT_BYTES), baseVersion: 0 }),
     ).resolves.toBe(1);
     await expect(
-      alice.as.mutation(api.scratch.save, { text: "a".repeat(MAX_TEXT_BYTES + 1), baseVersion: 1 }),
+      alice.as.mutation(api.pad.save, { text: "a".repeat(MAX_TEXT_BYTES + 1), baseVersion: 1 }),
     ).rejects.toThrow("textTooLong");
     // Multi-byte characters count by their UTF-8 size.
     await expect(
-      alice.as.mutation(api.scratch.save, { text: "é".repeat(MAX_TEXT_BYTES / 2 + 1), baseVersion: 1 }),
+      alice.as.mutation(api.pad.save, { text: "é".repeat(MAX_TEXT_BYTES / 2 + 1), baseVersion: 1 }),
     ).rejects.toThrow("textTooLong");
-    expect((await alice.as.query(api.scratch.get, {}))?.version).toBe(1);
+    expect((await alice.as.query(api.pad.get, {}))?.version).toBe(1);
   });
 });

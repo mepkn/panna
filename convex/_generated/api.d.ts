@@ -13,8 +13,7 @@ import type * as http from "../http.js";
 import type * as lib_access from "../lib/access.js";
 import type * as lib_allowlist from "../lib/allowlist.js";
 import type * as lib_limits from "../lib/limits.js";
-import type * as migrations from "../migrations.js";
-import type * as scratch from "../scratch.js";
+import type * as pad from "../pad.js";
 import type * as users from "../users.js";
 
 import type {
@@ -29,8 +28,7 @@ declare const fullApi: ApiFromModules<{
   "lib/access": typeof lib_access;
   "lib/allowlist": typeof lib_allowlist;
   "lib/limits": typeof lib_limits;
-  migrations: typeof migrations;
-  scratch: typeof scratch;
+  pad: typeof pad;
   users: typeof users;
 }>;
 

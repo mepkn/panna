@@ -82,7 +82,7 @@ npx expo start --dev-client      # Metro for the development build
 ## Deployment
 
 Three parts: the Convex production deployment `insightful-chickadee-479`
-(`https://insightful-chickadee-479.convex.cloud`, project `scratch`), the static web app on
+(`https://insightful-chickadee-479.convex.cloud`, project `panna`), the static web app on
 the VPS, and the Android app built with EAS (`@mepkn/panna`).
 
 ### One-time setup (done, except the VPS)
@@ -132,9 +132,9 @@ adb install -r dist/panna-preview-*.apk
 
 - **The app** (`src/`) uses Expo Router, NativeWind and React Native Reusables. The RNR primitives live in `src/components/ui/`, and screens only use the app's own wrappers in `src/components/cmp/cmp-*.tsx`. All strings are in `src/lib/strings.ts`.
 - **Convex** (`convex/`) is the entire backend.
-  - `schema.ts`: `scratches` (one row per user, `by_user` index), plus the Convex Auth tables.
+  - `schema.ts`: `pads` (one row per user, `by_user` index), plus the Convex Auth tables.
   - `auth.ts`: Convex Auth with the Password provider. `profile()` runs for sign-up and sign-in before anything is stored and refuses emails not in `ALLOWED_EMAILS` with a generic `notAllowed`. `lib/access.ts` `requireUserId` re-checks the list on every call, so removing an email also ends that user's sessions.
-  - `scratch.ts`: `get` and `save`. The row is always found from `getAuthUserId`; the client never sends a user or document id. `save` checks the 100 KB (UTF-8 bytes) cap, upserts and bumps `version`. A save based on an older version still wins.
+  - `pad.ts`: `get` and `save`. The row is always found from `getAuthUserId`; the client never sends a user or document id. `save` checks the 100 KB (UTF-8 bytes) cap, upserts and bumps `version`. A save based on an older version still wins.
   - `users.ts`: `me`, for the email in Settings.
-- **Sync** (`src/lib/use-scratch.ts`). Edits are saved 500 ms after typing stops. A subscription result is applied only while there are no unsaved or in-flight local edits, so the cursor doesn't jump; results older than the last saved version are ignored. The label shows Offline while the Convex websocket is disconnected; Convex queues the save and sends it on reconnect.
+- **Sync** (`src/lib/use-pad.ts`). Edits are saved 500 ms after typing stops. A subscription result is applied only while there are no unsaved or in-flight local edits, so the cursor doesn't jump; results older than the last saved version are ignored. The label shows Offline while the Convex websocket is disconnected; Convex queues the save and sends it on reconnect.
 - **Auth tokens** are kept in `expo-secure-store` on Android and `localStorage` on web.

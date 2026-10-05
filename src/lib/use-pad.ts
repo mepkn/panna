@@ -12,9 +12,9 @@ const SAVE_DELAY_MS = 500;
 // Local edits are saved SAVE_DELAY_MS after typing stops. A remote change is
 // applied only while there are no unsaved or in-flight local edits, so the
 // cursor never jumps while typing.
-export function useScratch() {
-  const remote = useQuery(api.scratch.get);
-  const saveMutation = useMutation(api.scratch.save);
+export function usePad() {
+  const remote = useQuery(api.pad.get);
+  const saveMutation = useMutation(api.pad.save);
   const connection = useConvexConnectionState();
 
   const [text, setText] = useState("");
