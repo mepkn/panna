@@ -2,7 +2,7 @@ import * as Clipboard from "expo-clipboard";
 import { router, Stack } from "expo-router";
 import { Check, Copy, Settings, Trash2 } from "lucide-react-native";
 import { useEffect, useState } from "react";
-import { Platform, View } from "react-native";
+import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MAX_TEXT_BYTES } from "@convex/lib/limits";
 import { CmpButton } from "@/components/cmp/cmp-button";
@@ -84,7 +84,6 @@ export default function PadScreen() {
           onChangeText={pad.change}
           editable={pad.loaded}
           placeholder={pad.loaded ? s.placeholder : s.loading}
-          autoFocus={Platform.OS === "web"}
         />
         <View className="border-border flex-row items-center gap-3 border-t px-4 py-1.5">
           <CmpText
