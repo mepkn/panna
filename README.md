@@ -3,7 +3,8 @@
 A private notepad: one plain-text box per account that syncs live between an Android
 phone and the web at <https://panna.pknspace.com>. Only allowlisted emails can sign in.
 
-Platforms: web (a Vite SPA in `web/`, on the VPS) and Android (Expo, sideloaded APK).
+Platforms: web (a Vite SPA in `web/`, on the VPS) and Android (Expo in `mobile/`, sideloaded APK).
+The Convex backend in `backend/` serves both. There is no root `package.json`: `cd` into a part to run its scripts.
 
 ## Features
 
@@ -27,26 +28,29 @@ Requires Node 22.18+ (`.nvmrc` pins 22).
 ### 1. Install and run Convex locally
 
 ```sh
-npm install               # backend: convex and its tests
-npm run mobile:install    # the Android app's own node_modules
-npm run web:install       # the web app's own node_modules
+(cd mobile && npm install)   # each part has its own node_modules
+(cd web && npm install)
+cd backend && npm install    # backend: convex and its tests
 printf 'EXPO_PUBLIC_CONVEX_URL=\nEXPO_PUBLIC_CONVEX_SITE_URL=\n' > .env.local   # first time only
-npx convex dev            # first run: choose a local deployment (no account needed)
+npm run dev                  # first run: choose a local deployment (no account needed)
 ```
 
-This writes `EXPO_PUBLIC_CONVEX_URL` to `.env.local` (the empty line tells it the name; Expo isn't
-in the root `package.json`, so it would otherwise write `CONVEX_URL`). Both apps read this one file. Keep it running; it redeploys whenever `convex/` changes.
+This writes `EXPO_PUBLIC_CONVEX_URL` to `backend/.env.local` (the empty line tells it the name;
+there's no Expo in `backend/`, so it would otherwise write `CONVEX_URL`). Both apps read this one
+file. Keep it running; it redeploys whenever `backend/convex/` changes. The other env files are
+described in `backend/.env.example` and `web/.env.example`.
 
 > **Phone vs. local backend:** `127.0.0.1` on a phone is the phone itself.
 > - **Android emulator:** set `EXPO_PUBLIC_CONVEX_URL=http://10.0.2.2:3210`.
 > - **USB device:** run `adb reverse tcp:3210 tcp:3210` and `adb reverse tcp:3211 tcp:3211`.
 > - **Device on the same Wi-Fi:** use your computer's LAN IP.
 >
-> Restart Metro after changing `.env.local`.
+> Restart Metro after changing `backend/.env.local`.
 
 ### 2. Configure Convex Auth (once per deployment)
 
 ```sh
+cd backend
 npx @convex-dev/auth      # interactive: generates JWT_PRIVATE_KEY + JWKS
 npx convex env set SITE_URL http://localhost:5173
 npx convex env set ALLOWED_EMAILS you@example.com   # comma-separated; nobody else can sign up or sign in
@@ -57,34 +61,33 @@ npx convex env set ALLOWED_EMAILS you@example.com   # comma-separated; nobody el
 ### 3. Run the app
 
 ```sh
-npm run web:dev                  # web app on http://localhost:5173
-npm run android                  # build and install a development build on a USB phone
-npm start                        # Metro for the development build
+cd web && npm run dev            # web app on http://localhost:5173
+cd mobile && npm run android     # build and install a development build on a USB phone
+cd mobile && npm start           # Metro for the development build
 ```
 
 ## Scripts
 
 | Command | What it does |
 |---|---|
-| `npx convex dev` | Local Convex backend with hot reload |
-| `npm run mobile:install` | Install the Android app's dependencies (`mobile/node_modules`) |
-| `npm run web:install` | Install the web app's dependencies (`web/node_modules`) |
-| `npm run web:dev` | Vite dev server for the web app |
-| `npm start` | Metro for the development build |
-| `npm run android` | Build and install the development build on a USB phone |
-| `npm run typecheck` | `convex/` typecheck |
-| `npm run lint` | ESLint for `convex/` and `scripts/` |
-| `npm test` | convex-test: allowlist, per-user isolation, size cap, versions |
-| `npm run check` | Typecheck, lint and tests for the backend, then `mobile/` and `web/` |
-| `npm run icons` | Regenerate the app icon and splash images |
-| `npm run deploy:backend` | Checks, then deploys `convex/` to production |
-| `npm run deploy:web` | Checks, builds `web/`, rsyncs `web/dist/` to the VPS |
-| `npm run deploy:web:dry` | The same, but rsync only shows what would change |
-| `npm run build:android:preview` | Installable APK, built on EAS cloud |
-| `npm run build:android:preview:local` | The same APK, built on this Mac into `mobile/dist/` |
-| `npm run build:android:production` | Play Store AAB on EAS cloud |
-| `npm run build:android:production:local` | The same AAB, built locally into `mobile/dist/` |
-| `npm run eas -- <args>` | Any other `eas` command as the personal account |
+| `backend/`: `npm run dev` | Local Convex backend with hot reload |
+| `backend/`: `npm run typecheck` | `convex/` typecheck |
+| `backend/`: `npm run lint` | ESLint for `convex/` |
+| `backend/`: `npm test` | convex-test: allowlist, per-user isolation, size cap, versions |
+| `backend/`: `npm run check` | Typecheck, lint and tests |
+| `mobile/`: `npm start` | Metro for the development build, with `backend/.env.local` |
+| `mobile/`: `npm run android` | Build and install the development build on a USB phone |
+| `mobile/`: `npm run icons` | Regenerate the app icon and splash images |
+| `web/`: `npm run dev` | Vite dev server for the web app |
+| `scripts/check.sh` | `npm run check` in `backend/`, `mobile/` and `web/` |
+| `scripts/deploy-backend.sh` | Checks, then deploys `backend/convex/` to production (`DRY_RUN=1` previews) |
+| `scripts/deploy-web.sh` | Checks, builds `web/`, rsyncs `web/dist/` to the VPS |
+| `DRY_RUN=1 scripts/deploy-web.sh` | The same, but rsync only shows what would change |
+| `scripts/build-android.sh preview cloud` | Installable APK, built on EAS cloud |
+| `scripts/build-android.sh preview local` | The same APK, built on this Mac into `mobile/dist/` |
+| `scripts/build-android.sh production cloud` | Play Store AAB on EAS cloud |
+| `scripts/build-android.sh production local` | The same AAB, built locally into `mobile/dist/` |
+| `scripts/eas.sh <args>` | Any other `eas` command as the personal account |
 
 ## Deployment
 
@@ -94,10 +97,12 @@ the VPS, and the Android app built with EAS (`@mepkn/panna`).
 
 ### One-time setup (done, except the VPS)
 
-- `.env.prod.local` (git-ignored) holds `CONVEX_DEPLOY_KEY`, the production `EXPO_PUBLIC_CONVEX_URL`
-  and `DEPLOY_HOST` / `DEPLOY_PORT` / `DEPLOY_DIR`. See `.env.example`. The scripts read it
-  line by line as literal `KEY=VALUE`; it is never sourced.
-- `.eas-token` (git-ignored) holds `export EXPO_TOKEN=...` for the personal Expo account. The scripts read it, so the global `eas` login is never used or changed.
+- `backend/.env.prod.local` (git-ignored) holds `CONVEX_DEPLOY_KEY`; `web/.env.prod.local` holds
+  the production `VITE_CONVEX_URL` and `DEPLOY_HOST` / `DEPLOY_PORT` / `DEPLOY_DIR`. See the
+  `.env.example` next to each. The scripts read them line by line as literal `KEY=VALUE`; they
+  are never sourced. Deploy key, run in `backend/`:
+  `npx convex deployment token create panna-deploy --deployment praveen-nirmalkar:panna:production --save-env .env.prod.local`.
+- `mobile/.eas-token` (git-ignored) holds `export EXPO_TOKEN=...` for the personal Expo account. The scripts read it, so the global `eas` login is never used or changed.
 - On the production Convex deployment: `JWT_PRIVATE_KEY`, `JWKS` (`npx @convex-dev/auth --prod`),
   `SITE_URL=https://panna.pknspace.com` and `ALLOWED_EMAILS`.
 - The EAS environments `preview` and `production` have `EXPO_PUBLIC_CONVEX_URL` set to the production URL.
@@ -117,28 +122,28 @@ the VPS, and the Android app built with EAS (`@mepkn/panna`).
 ### Backend
 
 ```sh
-npm run deploy:backend    # checks, then npx convex deploy to production
+scripts/deploy-backend.sh    # checks, then npx convex deploy to production
 ```
 
 ### Web
 
 ```sh
-npm run deploy:web:dry    # see what would change
-npm run deploy:web        # checks, vite build, rsync --delete; Caddy serves it immediately
+DRY_RUN=1 scripts/deploy-web.sh   # see what would change
+scripts/deploy-web.sh             # checks, vite build, rsync --delete; Caddy serves it immediately
 ```
 
 ### Android
 
 ```sh
-npm run build:android:preview:local
+scripts/build-android.sh preview local
 adb install -r mobile/dist/panna-preview-*.apk
 ```
 
 ## How it works
 
-- **The web app** (`web/`) is a separate Vite + React + shadcn/ui app with its own `package.json`. It imports the backend from `../convex` through the `@convex` alias (`web/vite.config.ts` dedupes `convex` and `react` so `../convex` uses the web copies). In dev it reads `EXPO_PUBLIC_CONVEX_URL` from the root `.env.local`; `deploy:web` passes the production URL as `VITE_CONVEX_URL`. The sync logic in `web/src/lib/use-pad.ts` mirrors the Android one.
-- **The Android app** (`mobile/`, with its own `package.json`) uses Expo Router, NativeWind and React Native Reusables. The RNR primitives live in `mobile/src/components/ui/`, and screens only use the app's own wrappers in `mobile/src/components/cmp/cmp-*.tsx`. All strings are in `mobile/src/lib/strings.ts`. It imports `../convex` through the `@convex` alias; `mobile/metro.config.js` watches that folder and resolves its packages from `mobile/node_modules`.
-- **Convex** (`convex/`) is the entire backend.
+- **The web app** (`web/`) is a separate Vite + React + shadcn/ui app with its own `package.json`. It imports the backend from `../backend/convex` through the `@convex` alias (`web/vite.config.ts` dedupes `convex` and `react` so the backend uses the web copies). In dev it reads `EXPO_PUBLIC_CONVEX_URL` from `backend/.env.local`; `scripts/deploy-web.sh` passes the production URL as `VITE_CONVEX_URL`. The sync logic in `web/src/lib/use-pad.ts` mirrors the Android one.
+- **The Android app** (`mobile/`, with its own `package.json`) uses Expo Router, NativeWind and React Native Reusables. The RNR primitives live in `mobile/src/components/ui/`, and screens only use the app's own wrappers in `mobile/src/components/cmp/cmp-*.tsx`. All strings are in `mobile/src/lib/strings.ts`. It imports the backend through the `@convex` alias; `mobile/metro.config.js` watches `../backend/convex` and resolves its packages from `mobile/node_modules`, so EAS builds need only the `mobile/` install. Its scripts load `backend/.env.local` with `node --env-file-if-exists`.
+- **Convex** (`backend/convex/`) is the entire backend.
   - `schema.ts`: `pads` (one row per user, `by_user` index), plus the Convex Auth tables.
   - `auth.ts`: Convex Auth with the Password provider. `profile()` runs for sign-up and sign-in before anything is stored and refuses emails not in `ALLOWED_EMAILS` with a generic `notAllowed`. `lib/access.ts` `requireUserId` re-checks the list on every call, so removing an email also ends that user's sessions.
   - `pad.ts`: `get` and `save`. The row is always found from `getAuthUserId`; the client never sends a user or document id. `save` checks the 100 KB (UTF-8 bytes) cap, upserts and bumps `version`. A save based on an older version still wins.
