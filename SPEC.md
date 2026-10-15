@@ -126,8 +126,8 @@ pads: defineTable({
   - `npm run deploy:web` and `deploy:web:dry` (`DRY_RUN=1`).
   - `DEPLOY_HOST`, `DEPLOY_PORT` and `DEPLOY_DIR` live in `.env.prod.local`, read with the shared
     literal loop. `.env.example` has placeholders only.
-  - One-time VPS setup (done by me; needs sudo). `DEPLOY_DIR=/var/www/panna`, owned by the
-    deploy user like the other sites. Block in `/etc/caddy/Caddyfile`:
+  - One-time VPS setup (done; no sudo needed). `DEPLOY_DIR=/var/www/panna`, owned by the
+    deploy user like the other sites. Block in `/etc/caddy/sites/panna.caddy`:
     ```caddy
     http://panna.pknspace.com:8080 {
           root * /var/www/panna
