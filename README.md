@@ -15,6 +15,7 @@ The Convex backend in `backend/` serves both. There is no root `package.json`: `
 - Copy all, and Clear (with a confirmation).
 - Accounts by email and password; sign-up confirms the email with a 6-digit code, and "Forgot password?" resets it with one. Only emails in `ALLOWED_EMAILS` can sign up or sign in.
 - Tools for AI clients through [kunji](https://kunji.pknspace.com): `read_pad`, `append_to_pad`.
+- Android update check: on launch (and Settings → Check for updates) the app compares its build with the latest GitHub release, downloads the new APK, opens Android's installer, and deletes the downloaded APK on the next launch.
 - Light, dark or system theme.
 
 ## Stack
@@ -154,4 +155,5 @@ adb install -r mobile/dist/panna-preview-*.apk
   - `kunji.ts` + `lib/kunji.ts` (routes added in `http.ts`): the kunji app contract (secret check, input check, the single verified user by email). `read_pad` reads; `append_to_pad` adds a line at the end through `writePad`, shared with `pad.save`, so the version bump and 100 KB cap match the app. Nothing replaces or clears the pad.
   - `users.ts`: `me`, for the email in Settings.
 - **Sync** (`mobile/src/lib/use-pad.ts`). Edits are saved 500 ms after typing stops. A subscription result is applied only while there are no unsaved or in-flight local edits, so the cursor doesn't jump; results older than the last saved version are ignored. The label shows Offline while the Convex websocket is disconnected; Convex queues the save and sends it on reconnect.
+- **Updates** (`mobile/src/lib/update.ts`): the Release workflow builds with `EXPO_PUBLIC_COMMIT` set to the short SHA, the same as the release tag. On launch the app asks GitHub for the latest release; a different tag offers the update. The APK is downloaded to the app's cache (`update/`) and opened with `INSTALL_PACKAGE` (needs `REQUEST_INSTALL_PACKAGES`; Android asks once to allow installs from Panna). Every launch deletes that folder. Builds without a SHA (local, dev) skip the check.
 - **Auth tokens** are kept in `expo-secure-store` on Android and `localStorage` in the web app.
