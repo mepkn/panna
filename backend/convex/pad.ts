@@ -1,11 +1,11 @@
 import { ConvexError, v } from "convex/values";
-import { mutation, query, type QueryCtx } from "./_generated/server";
+import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { requireUserId } from "./lib/access";
 import { MAX_TEXT_BYTES, textBytes } from "./lib/limits";
 
 // The user's row is always found from the auth identity, never from client ids.
-function findPad(ctx: QueryCtx, userId: Id<"users">) {
+export function findPad(ctx: QueryCtx, userId: Id<"users">) {
   return ctx.db
     .query("pads")
     .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -33,15 +33,20 @@ export const save = mutation({
   returns: v.number(),
   handler: async (ctx, { text }) => {
     const userId = await requireUserId(ctx);
-    if (textBytes(text) > MAX_TEXT_BYTES) throw new ConvexError("textTooLong");
-    const row = await findPad(ctx, userId);
-    const updatedAt = Date.now();
-    if (row === null) {
-      await ctx.db.insert("pads", { userId, text, version: 1, updatedAt });
-      return 1;
-    }
-    const version = row.version + 1;
-    await ctx.db.patch("pads", row._id, { text, version, updatedAt });
-    return version;
+    return await writePad(ctx, userId, text);
   },
 });
+
+/** Replaces the user's text (creating the pad on the first save); returns the new version. Shared with kunji's append_to_pad. */
+export async function writePad(ctx: MutationCtx, userId: Id<"users">, text: string): Promise<number> {
+  if (textBytes(text) > MAX_TEXT_BYTES) throw new ConvexError("textTooLong");
+  const row = await findPad(ctx, userId);
+  const updatedAt = Date.now();
+  if (row === null) {
+    await ctx.db.insert("pads", { userId, text, version: 1, updatedAt });
+    return 1;
+  }
+  const version = row.version + 1;
+  await ctx.db.patch("pads", row._id, { text, version, updatedAt });
+  return version;
+}
