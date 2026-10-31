@@ -13,6 +13,8 @@ The Convex backend in `backend/` serves both. There is no root `package.json`: `
 - Live sync, last write wins. Saves about 500 ms after typing stops; changes from other devices arrive instantly.
 - A small Saving… / Saved / Offline label, and a size counter near the 100 KB limit.
 - Copy all, and Clear (with a confirmation).
+- Accounts by email and password; sign-up confirms the email with a 6-digit code, and "Forgot password?" resets it with one. Only emails in `ALLOWED_EMAILS` can sign up or sign in.
+- Tools for AI clients through [kunji](https://kunji.pknspace.com): `read_pad`, `append_to_pad`.
 - Light, dark or system theme.
 
 ## Stack
@@ -104,7 +106,8 @@ the VPS, and the Android app built with EAS (`@mepkn/panna`).
   `npx convex deployment token create panna-deploy --deployment praveen-nirmalkar:panna:production --save-env .env.prod.local`.
 - `mobile/.eas-token` (git-ignored) holds `export EXPO_TOKEN=...` for the personal Expo account. The scripts read it, so the global `eas` login is never used or changed.
 - On the production Convex deployment: `JWT_PRIVATE_KEY`, `JWKS` (`npx @convex-dev/auth --prod`),
-  `SITE_URL=https://panna.pknspace.com` and `ALLOWED_EMAILS`.
+  `SITE_URL=https://panna.pknspace.com` and `ALLOWED_EMAILS`; `RESEND_API_KEY` (sends the codes; set with
+  `../scripts/set-resend-key.sh panna`); `KUNJI_SECRET` and `KUNJI_URL` (from panna's page in kunji).
 - The EAS environments `preview` and `production` have `EXPO_PUBLIC_CONVEX_URL` set to the production URL.
 - VPS: `DEPLOY_DIR=/var/www/panna`, owned by the deploy user. System Caddy block:
 
@@ -147,6 +150,8 @@ adb install -r mobile/dist/panna-preview-*.apk
   - `schema.ts`: `pads` (one row per user, `by_user` index), plus the Convex Auth tables.
   - `auth.ts`: Convex Auth with the Password provider. `profile()` runs for sign-up and sign-in before anything is stored and refuses emails not in `ALLOWED_EMAILS` with a generic `notAllowed`. `lib/access.ts` `requireUserId` re-checks the list on every call, so removing an email also ends that user's sessions.
   - `pad.ts`: `get` and `save`. The row is always found from `getAuthUserId`; the client never sends a user or document id. `save` checks the 100 KB (UTF-8 bytes) cap, upserts and bumps `version`. A save based on an older version still wins.
+  - `otp.ts`: the 6-digit codes for sign-up verification and password reset, sent by Resend from `Panna <noreply@send.pknspace.com>`. Without `RESEND_API_KEY` (local dev) the code is only logged in the `npx convex dev` output.
+  - `kunji.ts` + `lib/kunji.ts` (routes added in `http.ts`): the kunji app contract (secret check, input check, the single verified user by email). `read_pad` reads; `append_to_pad` adds a line at the end through `writePad`, shared with `pad.save`, so the version bump and 100 KB cap match the app. Nothing replaces or clears the pad.
   - `users.ts`: `me`, for the email in Settings.
 - **Sync** (`mobile/src/lib/use-pad.ts`). Edits are saved 500 ms after typing stops. A subscription result is applied only while there are no unsaved or in-flight local edits, so the cursor doesn't jump; results older than the last saved version are ignored. The label shows Offline while the Convex websocket is disconnected; Convex queues the save and sends it on reconnect.
 - **Auth tokens** are kept in `expo-secure-store` on Android and `localStorage` in the web app.
