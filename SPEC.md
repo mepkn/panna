@@ -3,7 +3,7 @@
 A private notepad: one plain-text box that syncs live between my Android phone and the
 web at `https://panna.pknspace.com`. Not public. Only allowlisted emails can sign in.
 
-Sister project of `../yaad-dila` (Expo + Convex). **Copy its structure, scripts and
+Sister project of `../suchna` (Expo + Convex). **Copy its structure, scripts and
 conventions** wherever this spec doesn't say otherwise. Read its README, `convex/auth.ts`,
 `convex/lib/allowlist.ts`, `convex/lib/access.ts`, `scripts/` and `src/components/cmp/`
 before starting.
@@ -28,7 +28,7 @@ before starting.
 
 ## Access control (most important part)
 
-- Convex Auth with the **Password** provider (email + password), as in yaad-dila.
+- Convex Auth with the **Password** provider (email + password), as in suchna.
 - **`ALLOWED_EMAILS`**, a Convex env var: a comma-separated list, case-insensitive, trimmed.
   - Checked in the Password provider's `profile()`, which runs for **both sign-up and
     sign-in, before anything is stored**. A non-allowlisted email never gets a user row.
@@ -37,7 +37,7 @@ before starting.
   - **Fails closed:** if the variable is unset or empty, nobody can sign in.
   - The error is a generic `ConvexError("notAllowed")`, shown as "This account isn't allowed
     to use this app." It must not reveal which emails are on the list.
-  - Copy `isAllowedEmail` from `../yaad-dila/convex/lib/allowlist.ts`. It reads `process.env`
+  - Copy `isAllowedEmail` from `../suchna/convex/lib/allowlist.ts`. It reads `process.env`
     through `globalThis` so that the app typecheck, which has no Node types, passes.
 - Set the variable on **every** deployment (local dev and prod) before using it:
   `npx convex env set ALLOWED_EMAILS <my email>`. Ask me which email to use; don't put it in the repo.
@@ -64,12 +64,12 @@ pads: defineTable({
 - `pad.save({ text, baseVersion })` mutation: validates size, upserts the user's row, bumps `version`, returns the new version.
 - `users.me()` query → `{ email }`, used in Settings.
 - Error codes are plain-string `ConvexError`s (`notAuthenticated`, `notAllowed`,
-  `textTooLong`), translated in the client like yaad-dila's `src/lib/errors.ts`.
+  `textTooLong`), translated in the client like suchna's `src/lib/errors.ts`.
 - **Read `convex/_generated/ai/guidelines.md` before writing Convex code.**
 
 ## Screens (Expo Router)
 
-- `(auth)/sign-in`, `(auth)/sign-up`: same form component as yaad-dila.
+- `(auth)/sign-in`, `(auth)/sign-up`: same form component as suchna.
 - `(app)/index`: the pad. Full-height text input, status label, size counter.
   Header buttons: **Copy all** and **Clear** (with a confirm dialog).
 - `(app)/settings`:
@@ -95,7 +95,7 @@ pads: defineTable({
   - No fixed offsets such as `mb-[40vh]`, no RN `KeyboardAvoidingView`, no bottom sheets.
 - `@/` → `src/`, and `@convex/` → `convex/`.
 - Node 22.18+ (`.nvmrc` = 22).
-- Scripts (copy them from yaad-dila):
+- Scripts (copy them from suchna):
   - `typecheck`, `lint` (ESLint, Expo config), `test` (Vitest + convex-test)
   - `check` runs all three
   - `deploy:backend` runs check, then `npx convex deploy`, reading `CONVEX_DEPLOY_KEY` from
@@ -109,7 +109,7 @@ pads: defineTable({
   - size cap enforced
   - version bumps
   - Stub `ALLOWED_EMAILS` with `vi.stubEnv` in the test helper.
-- Repo files: README (same layout as yaad-dila), `.env.example` (lists `ALLOWED_EMAILS`
+- Repo files: README (same layout as suchna), `.env.example` (lists `ALLOWED_EMAILS`
   under Convex-side vars), AGENTS.md, CLAUDE.md, LICENSE, `.gitignore` covering
   `.env*.local` and `.eas-token`.
 - App id `com.pknspace.panna`, scheme `panna`.
