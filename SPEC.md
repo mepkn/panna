@@ -118,7 +118,7 @@ pads: defineTable({
 
 - **Backend:** a new Convex project `panna`.
   - Set `JWT_PRIVATE_KEY` and `JWKS` (`npx @convex-dev/auth`), `SITE_URL`, and `ALLOWED_EMAILS` on prod.
-- **Web:** deploy the same way as `../akinator`, `../eliza`, `../class` and `../electricity-bill-calculator`:
+- **Web:** deploy the same way as `../akinator`, `../eliza`, `../class` and `../bijli`:
   - `npx expo export -p web` produces `dist/`.
   - `scripts/deploy-web.sh` (copy `../akinator/scripts/deploy.sh`) runs check, export, then
     `rsync -avz --delete dist/` over SSH to `DEPLOY_DIR`. The system Caddy on the VPS serves that
